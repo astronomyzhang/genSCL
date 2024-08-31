@@ -1,0 +1,46 @@
+FUNCTION_BLOCK "FB_LinearizeValue"
+{ S7_Optimized_Access := 'TRUE' }
+   VAR_INPUT 
+      InputValue : REAL; // 浮点数输入，原始测量值
+   END_VAR
+
+   VAR_OUTPUT 
+      LinearizedValue : REAL; // 转换后的线性化值
+      Error : BOOL; // 错误状态指示
+      Status : WORD; // 状态代码
+   END_VAR
+
+   VAR 
+      // 不需要在此处声明额外的变量
+   END_VAR
+
+
+BEGIN
+   // 初始化输出值
+   #LinearizedValue := 0.0;
+   #Error := FALSE;
+   #Status := 16#0000;
+   
+   // 判断输入值InputValue是否在指定区间内，并进行转换
+   IF #InputValue < 1200 THEN
+      // 输入值小于1200
+      #LinearizedValue := 150.0;
+      #Error := TRUE;
+      #Status := 16#8001;
+   ELSIF #InputValue <= 3600 THEN
+      // 输入值在1200到3600之间，转换到150到240之间
+      #LinearizedValue := 150.0 + (#InputValue - 1200) * (240 - 150) / (3600 - 1200);
+   ELSIF #InputValue <= 4800 THEN
+      // 输入值在3600到4800之间，转换到240到560之间
+      #LinearizedValue := 240.0 + (#InputValue - 3600) * (560 - 240) / (4800 - 3600);
+   ELSIF #InputValue <= 7000 THEN
+      // 输入值在4800到7000之间，转换到560到720之间
+      #LinearizedValue := 560.0 + (#InputValue - 4800) * (720 - 560) / (7000 - 4800);
+   ELSE
+      // 输入值大于7000
+      #LinearizedValue := 720.0;
+      #Error := TRUE;
+      #Status := 16#8001;
+   END_IF;
+   
+END_FUNCTION_BLOCK

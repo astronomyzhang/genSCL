@@ -1,0 +1,53 @@
+FUNCTION_BLOCK "FB_ColorLightControl"
+{ S7_Optimized_Access := 'TRUE' }
+   VAR_INPUT 
+      controlButton : BOOL; // Control button state, pulse signal
+   END_VAR
+
+   VAR_OUTPUT 
+      greenLight : BOOL; // Green light control
+      redLight : BOOL; // Red light control
+      yellowLight : BOOL; // Yellow light control
+   END_VAR
+
+   VAR 
+      state : INT := 1; // State variable to track the light sequence
+      lastControlButton : BOOL := FALSE; // Variable to store the last state of the control button
+   END_VAR
+
+
+BEGIN
+   // Check for rising edge of controlButton
+   IF #controlButton AND NOT #lastControlButton THEN
+      CASE #state OF
+         1:
+            #greenLight := TRUE;
+            #redLight := FALSE;
+            #yellowLight := FALSE;
+            #state := 2;
+         2:
+            #greenLight := FALSE;
+            #redLight := TRUE;
+            #yellowLight := FALSE;
+            #state := 3;
+         3:
+            #greenLight := FALSE;
+            #redLight := FALSE;
+            #yellowLight := TRUE;
+            #state := 4;
+         4:
+            #greenLight := TRUE;
+            #redLight := TRUE;
+            #yellowLight := TRUE;
+            #state := 5;
+         5:
+            #greenLight := FALSE;
+            #redLight := FALSE;
+            #yellowLight := FALSE;
+            #state := 1; // Reset to state 1 to start the cycle over
+      END_CASE;
+   END_IF;
+   
+   // Update the last state of the control button
+   #lastControlButton := #controlButton;
+END_FUNCTION_BLOCK

@@ -1,0 +1,54 @@
+FUNCTION_BLOCK "FB_SplitWordIntoBytes"
+{ S7_Optimized_Access := 'TRUE' }
+   VAR_INPUT 
+      InputWord : Word;
+   END_VAR
+
+   VAR_OUTPUT 
+      Byte0 : Byte;
+      Byte1 : Byte;
+      Byte2 : Byte;
+      Byte3 : Byte;
+      average : Real;
+   END_VAR
+
+   VAR 
+      nonZeroCount : Int := 0;
+      sum : Real := 0.0;
+   END_VAR
+
+
+BEGIN
+   #nonZeroCount := 0;
+   #sum := 0;
+
+   // Split the InputWord into four bytes
+   #Byte0 := WORD_TO_BYTE(#InputWord AND 16#000F);
+   #Byte1 := WORD_TO_BYTE(SHR(IN := #InputWord, N := 4) AND 16#000F);
+   #Byte2 := WORD_TO_BYTE(SHR(IN := #InputWord, N := 8) AND 16#000F);
+   #Byte3 := WORD_TO_BYTE(SHR(IN := #InputWord, N := 12) AND 16#000F);
+   
+   // Calculate the average of non-zero bytes
+   IF #Byte0 <> 0 THEN
+      #nonZeroCount := #nonZeroCount + 1;
+      #sum := #sum + #Byte0;
+   END_IF;
+   IF #Byte1 <> 0 THEN
+      #nonZeroCount := #nonZeroCount + 1;
+      #sum := #sum + #Byte1;
+   END_IF;
+   IF #Byte2 <> 0 THEN
+      #nonZeroCount := #nonZeroCount + 1;
+      #sum := #sum + #Byte2;
+   END_IF;
+   IF #Byte3 <> 0 THEN
+      #nonZeroCount := #nonZeroCount + 1;
+      #sum := #sum + #Byte3;
+   END_IF;
+   
+   IF #nonZeroCount > 0 THEN
+      #average := #sum / #nonZeroCount;
+   ELSE
+      #average := 0.0;
+   END_IF;
+END_FUNCTION_BLOCK

@@ -1,0 +1,26 @@
+FUNCTION_BLOCK "{name}"
+
+   VAR_INPUT 
+	//这里填写输入变量且进行初始化 
+   END_VAR
+
+   VAR_OUTPUT 
+      //这里填写输出变量且进行初始化
+   END_VAR
+
+   VAR_IN_OUT 
+      //这里填写输入输出变量且进行初始化 
+   END_VAR
+
+   VAR 
+      i : INT;    //本行必须保留且不可修改
+      //这里填写静态变量，禁止初始化
+   END_VAR
+
+
+BEGIN
+     //当error、status在输出变量中，需在此处再次进行周期初始化
+     //在声明时初始化过的变量不再进行初始化
+     //这里填写根据客户需求和业务分析师规划生成的控制逻辑代码
+     //在本部分调用变量时, 需采用  #+变量名  格式
+END_FUNCTION_BLOCK

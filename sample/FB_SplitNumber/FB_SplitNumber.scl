@@ -1,0 +1,60 @@
+FUNCTION_BLOCK "FB_SplitNumber"
+{ S7_Optimized_Access := 'TRUE' }
+   VAR_INPUT 
+      InputNumber : INT; 
+   END_VAR
+
+   VAR_OUTPUT 
+      Thousands : BYTE; 
+      Hundreds : BYTE; 
+      Tens : BYTE; 
+      Ones : BYTE; 
+      Min : BYTE; 
+      error : BOOL; 
+      status : WORD; 
+   END_VAR
+
+   VAR 
+      tempNumber : INT; 
+      minValue : BYTE; 
+   END_VAR
+
+
+BEGIN
+   // Check if the input number is within the valid range
+   IF (#InputNumber < 0) OR (#InputNumber >= 10000) THEN
+      #error := TRUE;
+      #status := 16#8001;
+      // Set the outputs to default values
+      #Thousands := 0;
+      #Hundreds := 0;
+      #Tens := 0;
+      #Ones := 0;
+      #Min := 0;
+   ELSE
+      // The input number is valid
+      #error := FALSE;
+      #status := 0;
+      
+      // Split the number into thousands, hundreds, tens and ones
+      #tempNumber := #InputNumber;
+      #Thousands := INT_TO_BYTE(#tempNumber / 1000);
+      #tempNumber := #tempNumber MOD 1000;
+      #Hundreds := INT_TO_BYTE(#tempNumber / 100);
+      #tempNumber := #tempNumber MOD 100;
+      #Tens := INT_TO_BYTE(#tempNumber / 10);
+      #Ones := INT_TO_BYTE(#tempNumber MOD 10);
+      
+      // Find the minimum non-zero value
+      #minValue := 255; // Initialize with the maximum value for a BYTE
+      IF #Thousands > 0 THEN #minValue := MIN(IN1:=#minValue, IN2:=#Thousands); END_IF;
+      IF #Hundreds > 0 THEN #minValue := MIN(IN1:=#minValue, IN2:=#Hundreds); END_IF;
+      IF #Tens > 0 THEN #minValue := MIN(IN1:=#minValue, IN2:=#Tens); END_IF;
+      IF #Ones > 0 THEN #minValue := MIN(IN1:=#minValue, IN2:=#Ones); END_IF;
+      
+      // If all digits are zero, set Min to zero
+      IF #minValue = 255 THEN #minValue := 0; END_IF;
+      
+      #Min := #minValue;
+   END_IF;
+END_FUNCTION_BLOCK
